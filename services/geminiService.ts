@@ -2,6 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import { HintRequest, ResourceType, Tile, GameStateSummary, CoachPersonality } from "../types";
 import { isAdjacentToOwned } from "../utils/grid";
 
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
 // Local heuristic to provide instant hints without API key
 const generateLocalHint = (request: HintRequest): string => {
   const { inventory, tiles, costs } = request;
@@ -61,12 +63,14 @@ const generateLocalHint = (request: HintRequest): string => {
 
 export const getHint = async (request: HintRequest): Promise<string> => {
   // Use local logic if no API key is present
-  if (!process.env.API_KEY) {
+  
+    if (!GEMINI_API_KEY) {
     console.log("No API Key, using local hint.");
     return generateLocalHint(request);
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
   
   const prompt = `
     You are a strategic assistant for a hex-grid resource game.
@@ -101,13 +105,15 @@ const PERSONALITY_PROMPTS: Record<CoachPersonality, string> = {
  */
 export const getCoachAdvice = async (summary: GameStateSummary, question?: string, personality: CoachPersonality = 'mentor'): Promise<string> => {
     // If no API key, return a stub with simulation
-    if (!process.env.API_KEY) {
+    
+      if (!GEMINI_API_KEY) {
         await new Promise(resolve => setTimeout(resolve, 800));
         return `(Simulated AI Coach - ${personality})\nTurn: ${summary.turn}\n\nSince no API Key is configured, I cannot analyze the board deeply. However, general strategy is to balance Wood/Brick for expansion early, then switch to Ore/Brick for cities later.`;
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+    
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    
     // 1. Serialize Board State
     const ownedTiles = summary.tiles.filter(t => t.level > 0);
     const ownedSummary = ownedTiles.map(t => 

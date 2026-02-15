@@ -1,0 +1,5 @@
+{
+  "name": "Hex Settler Solo",
+  "description": "A mobile-friendly solo strategy game on a hex grid. Roll dice, gather resources, build, and optimize your production with AI-powered hints.",
+  "requestFramePermissions": []
+}
